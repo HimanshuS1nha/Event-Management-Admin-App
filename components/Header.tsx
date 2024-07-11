@@ -23,7 +23,7 @@ const Header = ({
     router.replace("/login");
   }, []);
   return (
-    <View style={tw`px-4 py-2 flex-row items-center justify-between`}>
+    <View style={tw`px-4 pt-2 mb-5 flex-row items-center justify-between`}>
       {showBackButton ? (
         <Pressable onPress={router.back}>
           <AntDesign name="left" size={20} color="white" />

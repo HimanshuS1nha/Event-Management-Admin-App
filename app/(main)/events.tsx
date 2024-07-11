@@ -6,14 +6,14 @@ import SafeView from "@/components/SafeView";
 import Title from "@/components/Title";
 import Header from "@/components/Header";
 
-const Participants = () => {
+const Events = () => {
   return (
     <SafeView>
       <Header url="" />
 
-      <Title>Participants</Title>
+      <Title>Events</Title>
     </SafeView>
   );
 };
 
-export default Participants;
+export default Events;

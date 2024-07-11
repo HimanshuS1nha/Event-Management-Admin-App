@@ -1,11 +1,15 @@
-import { router } from "expo-router";
+import { router, useRootNavigationState } from "expo-router";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 
 export default function Index() {
+  const rootNavigationState = useRootNavigationState();
+
   useEffect(() => {
-    router.replace("/participants");
-  }, []);
+    if(rootNavigationState?.key){
+      router.replace("/participants");
+    }
+  }, [rootNavigationState?.key]);
   return (
     <View
       style={{
