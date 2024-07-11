@@ -4,6 +4,7 @@ import {
   ImageBackground,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
@@ -11,10 +12,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Entypo } from "@expo/vector-icons";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
+import { router } from "expo-router";
 
 import SafeView from "@/components/SafeView";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { loginValidator } from "@/validators/login-validator";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,6 +41,28 @@ const Login = () => {
 
   const { mutate: handleLogin, isPending } = useMutation({
     mutationKey: ["login"],
+    mutationFn: async () => {
+      const parsedData = await loginValidator.parseAsync({ email, password });
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_URL}/login/admin`,
+        { ...parsedData }
+      );
+
+      return data;
+    },
+    onSuccess: () => {
+      router.push({ pathname: "/verify", params: { email } });
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
