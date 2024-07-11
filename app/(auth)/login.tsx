@@ -69,7 +69,7 @@ const Login = () => {
       <LoadingModal isVisible={isPending} />
 
       <ImageBackground
-        source={require("../assets/images/login-bg.webp")}
+        source={require("../../assets/images/login-bg.webp")}
         style={tw`flex-1 items-center justify-center gap-y-12`}
       >
         <Title>Login as Admin</Title>
