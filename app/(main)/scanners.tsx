@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 const Scanners = () => {
   return (
     <SafeView>
-      <Header url="" />
+      <Header />
 
       <Title>Scanners</Title>
     </SafeView>

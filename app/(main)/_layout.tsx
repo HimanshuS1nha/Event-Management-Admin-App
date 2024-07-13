@@ -32,9 +32,9 @@ const MainLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="events"
+        name="all-events"
         options={{
-          title: "Events",
+          title: "All Events",
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5 name="calendar-alt" size={size} color={color} />
           ),

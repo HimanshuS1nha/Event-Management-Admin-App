@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 const Participants = () => {
   return (
     <SafeView>
-      <Header url="" />
+      <Header />
 
       <Title>Participants</Title>
     </SafeView>

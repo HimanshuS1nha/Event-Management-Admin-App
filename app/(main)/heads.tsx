@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 const Heads = () => {
   return (
     <SafeView>
-      <Header url="" />
+      <Header />
 
       <Title>Event Heads</Title>
     </SafeView>

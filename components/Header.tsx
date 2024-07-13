@@ -9,10 +9,8 @@ import { useUser } from "@/hooks/useUser";
 
 const Header = ({
   showBackButton = false,
-  url,
 }: {
   showBackButton?: boolean;
-  url: string;
 }) => {
   const { setIsLoggedIn } = useUser();
 
