@@ -18,7 +18,7 @@ import { eventCategories } from "@/constants/event-categories";
 const Events = () => {
   return (
     <SafeView>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Header />
 
         <Title>All Events</Title>

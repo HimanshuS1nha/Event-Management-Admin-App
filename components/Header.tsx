@@ -1,5 +1,5 @@
 import { View, Image, Pressable, Alert } from "react-native";
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import tw from "twrnc";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -7,11 +7,7 @@ import * as SecureStore from "expo-secure-store";
 
 import { useUser } from "@/hooks/useUser";
 
-const Header = ({
-  showBackButton = false,
-}: {
-  showBackButton?: boolean;
-}) => {
+const Header = ({ showBackButton = false }: { showBackButton?: boolean }) => {
   const { setIsLoggedIn } = useUser();
 
   const handleLogout = useCallback(async () => {
@@ -57,4 +53,4 @@ const Header = ({
   );
 };
 
-export default Header;
+export default memo(Header);
