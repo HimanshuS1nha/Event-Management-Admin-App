@@ -9,6 +9,8 @@ import LoadingModal from "@/components/LoadingModal";
 import Title from "@/components/Title";
 import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/hooks/useUser";
+import axios from "axios";
+import { verifyValidator } from "@/validators/verify-validator";
 
 const Verify = () => {
   const { email } = useLocalSearchParams();
@@ -22,7 +24,9 @@ const Verify = () => {
 
   const { mutate: handleVerify, isPending } = useMutation({
     mutationKey: ["verify"],
-    mutationFn: async () => {},
+    mutationFn: async () => {
+      const parsedData = await verifyValidator.parseAsync({ email, otp });
+    },
     onSuccess: () => {
       setIsLoggedIn(true);
     },
@@ -35,7 +39,7 @@ const Verify = () => {
         source={require("../..//assets/images/login-bg.webp")}
         style={tw`flex-1 items-center justify-center gap-y-8`}
       >
-        <Title>Login as Admin</Title>
+        <Title>Verify</Title>
 
         <OTPTextInput
           inputCount={6}

@@ -11,7 +11,6 @@ import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 import SafeView from "@/components/SafeView";
-import Title from "@/components/Title";
 import { useSelectedEvent } from "@/hooks/useSelectedEvent";
 
 const Event = () => {
