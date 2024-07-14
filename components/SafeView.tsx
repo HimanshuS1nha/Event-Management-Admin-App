@@ -1,8 +1,22 @@
-import { View, Text, SafeAreaView, StatusBar, Platform } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import React, { memo } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 
-const SafeView = ({ children }: { children: React.ReactNode }) => {
+const SafeView = ({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) => {
   return (
     <>
       <SafeAreaView
@@ -12,6 +26,7 @@ const SafeView = ({ children }: { children: React.ReactNode }) => {
             flex: 1,
             backgroundColor: "#000",
           },
+          style,
         ]}
       >
         {children}

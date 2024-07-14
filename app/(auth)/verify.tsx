@@ -39,7 +39,7 @@ const Verify = () => {
       await SecureStore.setItemAsync("is-logged-in", "true");
       await SecureStore.setItemAsync("token", data.token);
       setIsLoggedIn(true);
-      router.replace("/participants");
+      router.replace("/all-participants");
     },
   });
   return (

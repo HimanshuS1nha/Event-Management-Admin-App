@@ -14,7 +14,7 @@ const MainLayout = () => {
       }}
     >
       <Tabs.Screen
-        name="participants"
+        name="all-participants"
         options={{
           title: "Participants",
           tabBarIcon: ({ color, size }) => (

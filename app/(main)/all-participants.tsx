@@ -1,4 +1,10 @@
-import { View, Text } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  ImageBackground,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import tw from "twrnc";
 
@@ -9,9 +15,11 @@ import Header from "@/components/Header";
 const Participants = () => {
   return (
     <SafeView>
-      <Header />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Header />
 
-      <Title>Participants</Title>
+        <Title>Participants</Title>
+      </ScrollView>
     </SafeView>
   );
 };
