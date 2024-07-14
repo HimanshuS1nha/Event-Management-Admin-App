@@ -3,13 +3,14 @@ import React, { useCallback, useState } from "react";
 import tw from "twrnc";
 import { useLocalSearchParams, router } from "expo-router";
 import OTPTextInput from "react-native-otp-textinput";
+import * as SecureStore from "expo-secure-store";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 
 import SafeView from "@/components/SafeView";
 import LoadingModal from "@/components/LoadingModal";
 import Title from "@/components/Title";
-import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/hooks/useUser";
-import axios from "axios";
 import { verifyValidator } from "@/validators/verify-validator";
 
 const Verify = () => {
@@ -26,9 +27,19 @@ const Verify = () => {
     mutationKey: ["verify"],
     mutationFn: async () => {
       const parsedData = await verifyValidator.parseAsync({ email, otp });
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/verify/admin`,
+        { ...parsedData }
+      );
+
+      return data as { token: string };
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      await SecureStore.setItemAsync("is-logged-in", "true");
+      await SecureStore.setItemAsync("token", data.token);
       setIsLoggedIn(true);
+      router.replace("/participants");
     },
   });
   return (
