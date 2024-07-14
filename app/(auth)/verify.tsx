@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, Pressable } from "react-native";
+import { Text, ImageBackground, Pressable } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
 import { useLocalSearchParams, router } from "expo-router";
