@@ -45,7 +45,7 @@ const Login = () => {
       const parsedData = await loginValidator.parseAsync({ email, password });
 
       const { data } = await axios.post(
-        `${process.env.EXPO_PUBLIC_URL}/login/admin`,
+        `${process.env.EXPO_PUBLIC_API_URL}/login/admin`,
         { ...parsedData }
       );
 

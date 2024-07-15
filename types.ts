@@ -13,3 +13,11 @@ export type EventType = {
     headId: string;
   }[];
 };
+
+export type HeadType = {
+  id: string;
+  eventName: string;
+  name: string;
+  phoneNumber: string;
+  image: string;
+};

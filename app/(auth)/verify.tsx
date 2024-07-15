@@ -39,7 +39,7 @@ const Verify = () => {
       await SecureStore.setItemAsync("is-logged-in", "true");
       await SecureStore.setItemAsync("token", data.token);
       setIsLoggedIn(true);
-      router.replace("/all-participants");
+      router.replace("/participants");
     },
   });
   return (
@@ -50,7 +50,7 @@ const Verify = () => {
         source={require("../..//assets/images/login-bg.webp")}
         style={tw`flex-1 items-center justify-center gap-y-8`}
       >
-        <Title>Verify</Title>
+        <Title>Verify to Login</Title>
 
         <OTPTextInput
           inputCount={6}
@@ -65,7 +65,7 @@ const Verify = () => {
           onPress={() => handleVerify()}
           disabled={isPending}
         >
-          <Text style={tw`text-white text-base font-semibold`}>Login</Text>
+          <Text style={tw`text-white text-base font-semibold`}>Verify</Text>
         </Pressable>
       </ImageBackground>
     </SafeView>
