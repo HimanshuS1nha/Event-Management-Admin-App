@@ -5,7 +5,13 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 
 import { HeadType } from "@/types";
 
-const HeadCard = ({ head }: { head: HeadType }) => {
+const HeadCard = ({
+  head,
+  onDelete,
+}: {
+  head: HeadType;
+  onDelete: (id: string) => void;
+}) => {
   return (
     <View
       style={tw`bg-gray-700 rounded-lg py-4 w-[95%] mb-2.5 items-center justify-center gap-y-3.5`}
@@ -25,6 +31,7 @@ const HeadCard = ({ head }: { head: HeadType }) => {
         </Pressable>
         <Pressable
           style={tw`bg-rose-600 p-2 rounded-full items-center justify-center`}
+          onPress={() => onDelete(head.id)}
         >
           <FontAwesome name="trash" size={20} color="white" />
         </Pressable>
