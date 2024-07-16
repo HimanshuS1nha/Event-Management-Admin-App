@@ -1,4 +1,4 @@
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, Pressable, Alert } from "react-native";
 import React, { memo } from "react";
 import tw from "twrnc";
 import { Feather, FontAwesome } from "@expo/vector-icons";
@@ -31,7 +31,17 @@ const HeadCard = ({
         </Pressable>
         <Pressable
           style={tw`bg-rose-600 p-2 rounded-full items-center justify-center`}
-          onPress={() => onDelete(head.id)}
+          onPress={() => {
+            Alert.alert("Warning", "Do you want to delete this event?", [
+              {
+                text: "No",
+              },
+              {
+                text: "Yes",
+                onPress: () => onDelete(head.id),
+              },
+            ]);
+          }}
         >
           <FontAwesome name="trash" size={20} color="white" />
         </Pressable>

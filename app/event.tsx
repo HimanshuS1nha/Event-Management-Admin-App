@@ -4,21 +4,58 @@ import {
   ScrollView,
   ImageBackground,
   Pressable,
+  Alert,
 } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import * as SecureStore from "expo-secure-store";
 
 import SafeView from "@/components/SafeView";
 import { useSelectedEvent } from "@/hooks/useSelectedEvent";
 
 const Event = () => {
   const { selectedEvent } = useSelectedEvent();
+  const queryClient = useQueryClient();
 
+  const { mutate: handleDelete, isPending } = useMutation({
+    mutationKey: ["delete-head"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/delete/event`,
+        { token, id: selectedEvent.id }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-events"] });
+      Alert.alert("Success", data.message);
+      router.back();
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response?.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
+  });
   return (
     <SafeView>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`pb-20`}
+      >
         <ImageBackground
           source={{ uri: selectedEvent.image }}
           style={tw`w-full h-[350px]`}
@@ -97,6 +134,33 @@ const Event = () => {
           </View>
         )}
       </ScrollView>
+
+      <View
+        style={tw`absolute bottom-3 w-full justify-center flex-row gap-x-4`}
+      >
+        <Pressable
+          style={tw`bg-green-600 w-40 items-center py-3 justify-center rounded-lg`}
+          onPress={() => router.push("/edit-event-details")}
+        >
+          <Text style={tw`text-white text-base font-bold`}>Edit Details</Text>
+        </Pressable>
+        <Pressable
+          style={tw`bg-red-600 w-40 items-center py-3 justify-center rounded-lg`}
+          onPress={() => {
+            Alert.alert("Warning", "Do you want to delete this event?", [
+              {
+                text: "No",
+              },
+              {
+                text: "Yes",
+                onPress: () => handleDelete(),
+              },
+            ]);
+          }}
+        >
+          <Text style={tw`text-white text-base font-bold`}>Delete Event</Text>
+        </Pressable>
+      </View>
     </SafeView>
   );
 };
