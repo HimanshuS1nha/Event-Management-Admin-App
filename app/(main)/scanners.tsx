@@ -2,7 +2,7 @@ import { View, Text, ScrollView, Alert } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
 
@@ -13,6 +13,8 @@ import Header from "@/components/Header";
 import ScannerCard from "@/components/ScannerCard";
 
 const Scanners = () => {
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["get-all-scanners"],
     queryFn: async () => {
@@ -41,7 +43,31 @@ const Scanners = () => {
 
   const { mutate: handleDelete, isPending } = useMutation({
     mutationKey: ["delete-scanner"],
-    mutationFn: async (id: string) => {},
+    mutationFn: async (id: string) => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/delete/scanner`,
+        { token, id }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-all-scanners"] });
+      Alert.alert("Success", data.message);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response?.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
