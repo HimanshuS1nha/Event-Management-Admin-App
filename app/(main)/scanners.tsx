@@ -1,22 +1,43 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import * as SecureStore from "expo-secure-store";
 
 import SafeView from "@/components/SafeView";
 import LoadingModal from "@/components/LoadingModal";
 import Title from "@/components/Title";
 import Header from "@/components/Header";
 import ScannerCard from "@/components/ScannerCard";
-import { useMutation } from "@tanstack/react-query";
 
 const Scanners = () => {
-  const scanners = [
-    {
-      id: "1",
-      email: "random@email.com",
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["get-all-scanners"],
+    queryFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/get-all-scanners`,
+        { token }
+      );
+
+      return data as { allScanners: { email: string; id: string }[] };
     },
-  ];
+  });
+  if (error) {
+    if (error instanceof AxiosError && error.response?.data.error) {
+      Alert.alert("Error", error.response?.data.error);
+    } else if (error instanceof Error) {
+      Alert.alert("Error", error.message);
+    } else {
+      Alert.alert("Error", "Some error occured. Please try again later!");
+    }
+  }
 
   const { mutate: handleDelete, isPending } = useMutation({
     mutationKey: ["delete-scanner"],
@@ -24,15 +45,20 @@ const Scanners = () => {
   });
   return (
     <SafeView>
-      <LoadingModal isVisible={isPending} />
+      <LoadingModal isVisible={isLoading || isPending} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header />
 
         <Title>Scanners</Title>
 
-        <View style={tw`mt-7 px-5`}>
+        <View style={tw`mt-8 px-4 w-full h-full`}>
+          {data?.allScanners?.length === 0 && (
+            <Text style={tw`text-center text-base font-semibold`}>
+              No data to show.
+            </Text>
+          )}
           <FlashList
-            data={scanners}
+            data={data?.allScanners}
             keyExtractor={(i) => i.id}
             renderItem={({ item }) => (
               <ScannerCard scanner={item} onDelete={handleDelete} />

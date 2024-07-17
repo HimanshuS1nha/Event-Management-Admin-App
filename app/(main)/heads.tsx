@@ -77,6 +77,11 @@ const Heads = () => {
       <Title>Event Heads</Title>
 
       <View style={tw`mt-8 w-full h-full px-4`}>
+        {data?.allHeads?.length === 0 && (
+          <Text style={tw`text-center text-base font-semibold`}>
+            No data to show.
+          </Text>
+        )}
         <FlashList
           data={data?.allHeads}
           keyExtractor={(item) => item.id}
