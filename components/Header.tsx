@@ -7,7 +7,13 @@ import * as SecureStore from "expo-secure-store";
 
 import { useUser } from "@/hooks/useUser";
 
-const Header = ({ showBackButton = false }: { showBackButton?: boolean }) => {
+const Header = ({
+  showBackButton = false,
+  url,
+}: {
+  showBackButton?: boolean;
+  url?: string;
+}) => {
   const { setIsLoggedIn } = useUser();
 
   const handleLogout = useCallback(async () => {
@@ -30,24 +36,31 @@ const Header = ({ showBackButton = false }: { showBackButton?: boolean }) => {
       )}
 
       <View style={tw`flex-row gap-x-4 items-center`}>
-        <Pressable
-          onPress={() => {
-            Alert.alert("Warning", "Do you want to logout?", [
-              {
-                text: "No",
-              },
-              {
-                text: "Yes",
-                onPress: async () => {
-                  await handleLogout();
-                  router.replace("/login");
+        {url && (
+          <Pressable onPress={() => router.push(url)}>
+            <AntDesign name="plus" size={27} color="white" />
+          </Pressable>
+        )}
+        {!showBackButton && (
+          <Pressable
+            onPress={() => {
+              Alert.alert("Warning", "Do you want to logout?", [
+                {
+                  text: "No",
                 },
-              },
-            ]);
-          }}
-        >
-          <MaterialCommunityIcons name="logout" size={27} color="white" />
-        </Pressable>
+                {
+                  text: "Yes",
+                  onPress: async () => {
+                    await handleLogout();
+                    router.replace("/login");
+                  },
+                },
+              ]);
+            }}
+          >
+            <MaterialCommunityIcons name="logout" size={27} color="white" />
+          </Pressable>
+        )}
       </View>
     </View>
   );

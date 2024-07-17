@@ -73,7 +73,7 @@ const Scanners = () => {
     <SafeView>
       <LoadingModal isVisible={isLoading || isPending} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Header />
+        <Header url="/add-scanner" />
 
         <Title>Scanners</Title>
 
