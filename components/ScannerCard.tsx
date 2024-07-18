@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Alert } from "react-native";
-import React from "react";
+import React, { memo } from "react";
 import tw from "twrnc";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -51,4 +51,4 @@ const ScannerCard = ({
   );
 };
 
-export default ScannerCard;
+export default memo(ScannerCard);

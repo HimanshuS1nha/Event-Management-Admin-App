@@ -72,7 +72,7 @@ const Heads = () => {
   return (
     <SafeView>
       <LoadingModal isVisible={isLoading || isPending} />
-      <Header />
+      <Header url="/add-head" />
 
       <Title>Event Heads</Title>
 
