@@ -2,6 +2,7 @@ import { View, Text, Image, Pressable, Alert } from "react-native";
 import React, { memo } from "react";
 import tw from "twrnc";
 import { Feather, FontAwesome } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 import { HeadType } from "@/types";
 
@@ -26,6 +27,9 @@ const HeadCard = ({
       <View style={tw`flex-row gap-x-3`}>
         <Pressable
           style={tw`bg-green-600 p-2 rounded-full items-center justify-center`}
+          onPress={() =>
+            router.push({ pathname: "/edit-head", params: { id: head.id } })
+          }
         >
           <Feather name="edit-2" size={20} color="white" />
         </Pressable>
