@@ -1,14 +1,16 @@
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, Alert } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { addScannerValidator } from "@/validators/add-scanner-validator";
 
 const AddScanner = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +30,48 @@ const AddScanner = () => {
     []
   );
 
-  const { mutate: handleAddScanner, isPending } = useMutation({});
+  const { mutate: handleAddScanner, isPending } = useMutation({
+    mutationKey: ["add-scanner"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await addScannerValidator.parseAsync({
+        email,
+        password,
+        confirmPassword,
+      });
+      if (parsedData.password !== parsedData.confirmPassword) {
+        throw new Error("Passwrds do not match");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/add-scanner`,
+        { token, ...parsedData }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: (data) => {
+      Alert.alert("Success", data.message);
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+      }
+      Alert.alert("Error", "Some error occured. Please try again later!");
+    },
+  });
   return (
     <SafeView>
       <LoadingModal isVisible={isPending} />
