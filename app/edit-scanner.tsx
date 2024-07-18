@@ -43,7 +43,12 @@ const EditScanner = () => {
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["get-all-scanners"] });
-      router.back();
+      Alert.alert("Success", data.message, [
+        {
+          text: "Ok",
+          onPress: router.back,
+        },
+      ]);
     },
     onError: (error) => {
       if (error instanceof ZodError) {
