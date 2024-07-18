@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
@@ -20,8 +20,11 @@ import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { addHeadValidator } from "@/validators/add-head-validator";
 
 const AddHead = () => {
+  const queryClient = useQueryClient();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [image, setImage] = useState("");
@@ -68,6 +71,49 @@ const AddHead = () => {
 
   const { mutate: handleAddHead, isPending } = useMutation({
     mutationKey: ["add-head"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await addHeadValidator.parseAsync({
+        email,
+        password,
+        confirmPassword,
+      });
+      if (parsedData.password !== parsedData.confirmPassword) {
+        throw new Error("Passwrds do not match");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/add-head`,
+        { token, ...parsedData }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-all-heads"] });
+      Alert.alert("Success", data.message);
+      setName("");
+      setEmail("");
+      setImage("");
+      setPhoneNumber("");
+      setPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
