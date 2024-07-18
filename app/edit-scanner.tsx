@@ -1,18 +1,21 @@
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, Alert } from "react-native";
 import React, { useState, useCallback } from "react";
 import tw from "twrnc";
 import { useLocalSearchParams, router } from "expo-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
+import { ZodError } from "zod";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { editScannerValidator } from "@/validators/edit-scanner-validator";
 
 const EditScanner = () => {
   const { scannerEmail } = useLocalSearchParams();
+  const queryClient = useQueryClient();
 
   const [email, setEmail] = useState(scannerEmail as string);
 
@@ -20,6 +23,39 @@ const EditScanner = () => {
 
   const { mutate: handleEditScanner, isPending } = useMutation({
     mutationKey: ["edit-scanner"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await editScannerValidator.parseAsync({
+        oldEmail: scannerEmail,
+        newEmail: email,
+      });
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/edit-scanner`,
+        { token, ...parsedData }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-all-scanners"] });
+      router.back();
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>

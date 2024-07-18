@@ -1,7 +1,7 @@
 import { View, Text, TextInput, Pressable, Alert } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
@@ -13,6 +13,8 @@ import LoadingModal from "@/components/LoadingModal";
 import { addScannerValidator } from "@/validators/add-scanner-validator";
 
 const AddScanner = () => {
+  const queryClient = useQueryClient();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -54,7 +56,8 @@ const AddScanner = () => {
 
       return data as { message: string };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-all-scanners"] });
       Alert.alert("Success", data.message);
       setEmail("");
       setPassword("");
@@ -68,8 +71,8 @@ const AddScanner = () => {
       } else if (error instanceof Error) {
         Alert.alert("Error", error.message);
       } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
       }
-      Alert.alert("Error", "Some error occured. Please try again later!");
     },
   });
   return (
