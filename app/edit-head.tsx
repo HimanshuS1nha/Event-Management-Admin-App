@@ -7,9 +7,10 @@ import {
   Image,
   Alert,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import tw from "twrnc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 import { useLocalSearchParams, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from "expo-image-picker";
@@ -23,17 +24,34 @@ import LoadingModal from "@/components/LoadingModal";
 const EditHead = () => {
   const { id } = useLocalSearchParams();
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["get-head-details"],
+    queryFn: async () => {
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/get-head-details`,
+        { id }
+      );
+      return data as {
+        head: { name: string; image: string; phoneNumber: string };
+      };
+    },
+  });
+  if (error) {
+    if (error instanceof AxiosError && error.response?.data.error) {
+      Alert.alert("Error", error.response.data.error);
+    } else {
+      Alert.alert("Error", "Some error occured. Please try again later!");
+    }
+  }
+
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [image, setImage] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleChange = useCallback(
-    (type: "name" | "email" | "phoneNumber", value: string) => {
+    (type: "name" | "phoneNumber", value: string) => {
       if (type === "name") {
         setName(value);
-      } else if (type === "email") {
-        setEmail(value);
       } else if (type === "phoneNumber") {
         setPhoneNumber(value);
       }
@@ -61,9 +79,17 @@ const EditHead = () => {
   const { mutate: handleEditHead, isPending } = useMutation({
     mutationKey: ["edit-head"],
   });
+
+  useEffect(() => {
+    if (data?.head) {
+      setName(data?.head?.name);
+      setImage(data?.head?.image);
+      setPhoneNumber(data?.head?.phoneNumber);
+    }
+  }, [data?.head]);
   return (
     <SafeView>
-      <LoadingModal isVisible={isPending} />
+      <LoadingModal isVisible={isLoading || isPending} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -102,18 +128,6 @@ const EditHead = () => {
               placeholderTextColor={"#fff"}
               value={name}
               onChangeText={(text) => handleChange("name", text)}
-            />
-          </View>
-          <View style={tw`gap-y-3 w-[80%]`}>
-            <Text style={tw`text-white ml-1.5 font-medium text-base`}>
-              Email
-            </Text>
-            <TextInput
-              style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your email"
-              placeholderTextColor={"#fff"}
-              value={email}
-              onChangeText={(text) => handleChange("email", text)}
             />
           </View>
           <View style={tw`gap-y-3 w-[80%]`}>
