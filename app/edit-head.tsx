@@ -15,6 +15,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ZodError } from "zod";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -92,12 +93,20 @@ const EditHead = () => {
         phoneNumber,
       });
 
-      const { data } = await axios.post(
+      if (
+        parsedData.name === data?.head?.name &&
+        parsedData.image === data?.head?.image &&
+        parsedData.phoneNumber === data?.head?.phoneNumber
+      ) {
+        throw new Error("Please edit something before submitting");
+      }
+
+      const { data: responseData } = await axios.post(
         `${process.env.EXPO_PUBLIC_API_URL}/edit-head`,
         { ...parsedData }
       );
 
-      return data as { message: string };
+      return responseData as { message: string };
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["get-all-heads"] });
@@ -107,6 +116,17 @@ const EditHead = () => {
           onPress: router.back,
         },
       ]);
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
     },
   });
 
