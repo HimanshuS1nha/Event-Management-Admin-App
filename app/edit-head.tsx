@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import tw from "twrnc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { useLocalSearchParams, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -20,9 +20,11 @@ import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { editHeadValidator } from "@/validators/edit-head-validator";
 
 const EditHead = () => {
   const { id } = useLocalSearchParams();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["get-head-details"],
@@ -78,6 +80,34 @@ const EditHead = () => {
 
   const { mutate: handleEditHead, isPending } = useMutation({
     mutationKey: ["edit-head"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await editHeadValidator.parseAsync({
+        name,
+        image,
+        phoneNumber,
+      });
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/edit-head`,
+        { ...parsedData }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-all-heads"] });
+      Alert.alert("Success", data.message, [
+        {
+          text: "Ok",
+          onPress: router.back,
+        },
+      ]);
+    },
   });
 
   useEffect(() => {

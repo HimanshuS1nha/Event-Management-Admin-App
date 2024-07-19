@@ -5,6 +5,10 @@ export const addHeadValidator = z.object({
     .string({ required_error: "Name is required" })
     .trim()
     .min(1, { message: "Please fill in the name field" }),
+  image: z
+    .string({ required_error: "Image is required" })
+    .trim()
+    .min(1, { message: "Please select an image" }),
   email: z
     .string({ required_error: "Email is required" })
     .email({ message: "Please enter a valid email" }),

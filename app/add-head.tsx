@@ -81,6 +81,9 @@ const AddHead = () => {
         email,
         password,
         confirmPassword,
+        name,
+        image,
+        phoneNumber,
       });
       if (parsedData.password !== parsedData.confirmPassword) {
         throw new Error("Passwrds do not match");
