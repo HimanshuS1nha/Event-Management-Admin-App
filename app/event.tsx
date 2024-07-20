@@ -140,7 +140,7 @@ const Event = () => {
       >
         <Pressable
           style={tw`bg-green-600 w-40 items-center py-3 justify-center rounded-lg`}
-          onPress={() => router.push("/edit-event-details")}
+          onPress={() => router.push("/edit-event")}
         >
           <Text style={tw`text-white text-base font-bold`}>Edit Details</Text>
         </Pressable>

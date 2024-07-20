@@ -7,8 +7,11 @@ import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
+import { useSelectedEvent } from "@/hooks/useSelectedEvent";
 
 const EditEvent = () => {
+  const { selectedEvent } = useSelectedEvent();
+
   const { mutate: handleEditEvent, isPending } = useMutation({
     mutationKey: ["edit-event"],
   });
