@@ -19,7 +19,7 @@ const Events = () => {
   return (
     <SafeView>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Header />
+        <Header url="/add-event" />
 
         <Title>All Events</Title>
 
