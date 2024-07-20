@@ -196,6 +196,7 @@ const AddHead = () => {
               placeholder="Enter your password"
               placeholderTextColor={"#fff"}
               value={password}
+              secureTextEntry
               onChangeText={(text) => handleChange("password", text)}
             />
           </View>
@@ -208,6 +209,7 @@ const AddHead = () => {
               placeholder="Enter your password"
               placeholderTextColor={"#fff"}
               value={confirmPassword}
+              secureTextEntry
               onChangeText={(text) => handleChange("confirmPassword", text)}
             />
           </View>
