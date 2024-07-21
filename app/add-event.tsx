@@ -164,13 +164,27 @@ const AddEvent = () => {
         heads,
       });
 
-      return true;
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/add-event`,
+        { token, ...parsedData }
+      );
+
+      return data as { message: string };
     },
     onSuccess: (data) => {
-      console.log(data);
+      Alert.alert("Success", data.message);
+      setName("");
+      setCategory("");
+      setImage("");
+      setRules("");
+      setDescription("");
+      setLocation("");
+      setRoomNo("");
+      setHeads([]);
+      setDate("");
+      setTime("");
     },
     onError: (error) => {
-      console.log(error);
       if (error instanceof ZodError) {
         Alert.alert("Error", error.errors[0].message);
       } else if (error instanceof AxiosError && error.response?.data.error) {
