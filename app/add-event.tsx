@@ -5,6 +5,7 @@ import {
   Pressable,
   Image,
   TextInput,
+  Alert,
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
@@ -13,8 +14,9 @@ import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from "expo-image-picker";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import SectionedMultiSelect from "react-native-sectioned-multi-select";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -32,6 +34,51 @@ const AddEvent = () => {
   const [rommNo, setRommNo] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [heads, setHeads] = useState([]);
+
+  const items = [
+    {
+      name: "Fruits",
+      id: 0,
+      children: [
+        {
+          name: "Apple",
+          id: 10,
+        },
+        {
+          name: "Strawberry",
+          id: 17,
+        },
+        {
+          name: "Pineapple",
+          id: 13,
+        },
+        {
+          name: "Banana",
+          id: 14,
+        },
+        {
+          name: "Watermelon",
+          id: 15,
+        },
+        {
+          name: "Kiwi fruit",
+          id: 16,
+        },
+      ],
+    },
+  ];
+
+  const items2 = [
+    {
+      id: 1,
+      name: "Yo",
+    },
+    {
+      id: 2,
+      name: "Go",
+    },
+  ];
 
   const handleChange = useCallback(
     (
@@ -67,7 +114,27 @@ const AddEvent = () => {
     []
   );
 
-  const pickImage = useCallback(() => {}, []);
+  const pickImage = useCallback(async () => {
+    try {
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        base64: true,
+      });
+      if (res.canceled) {
+        return;
+      }
+      const base64 = `data:image/png;base64,${res.assets?.[0].base64}`;
+      setImage(base64);
+    } catch (error) {
+      Alert.alert("Error", "Some error occured.");
+    }
+  }, []);
+
+  const handleSelectHeads = useCallback((items: any) => {
+    setHeads(items);
+    console.log(items);
+  }, []);
 
   const { mutate: handleAddEvent, isPending } = useMutation({
     mutationKey: ["add-event"],
@@ -238,6 +305,23 @@ const AddEvent = () => {
               value={time}
               onChangeText={(text) => handleChange("time", text)}
               keyboardType="number-pad"
+            />
+          </View>
+          <View style={tw`gap-y-3 w-[80%]`}>
+            <Text style={tw`text-white ml-1.5 font-medium text-base`}>
+              Heads
+            </Text>
+            <SectionedMultiSelect
+              items={items2}
+              IconRenderer={MaterialIcons as any}
+              uniqueKey="id"
+              selectText="Select heads"
+              showDropDowns={true}
+              onSelectedItemsChange={handleSelectHeads}
+              selectedItems={heads}
+              colors={{selectToggleTextColor:"#fff" }}
+              hideSearch
+              showCancelButton
             />
           </View>
 
