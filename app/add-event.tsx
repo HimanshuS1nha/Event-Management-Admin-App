@@ -17,6 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -32,42 +33,10 @@ const AddEvent = () => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [rommNo, setRommNo] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date().toDateString());
   const [time, setTime] = useState("");
   const [heads, setHeads] = useState([]);
-
-  const items = [
-    {
-      name: "Fruits",
-      id: 0,
-      children: [
-        {
-          name: "Apple",
-          id: 10,
-        },
-        {
-          name: "Strawberry",
-          id: 17,
-        },
-        {
-          name: "Pineapple",
-          id: 13,
-        },
-        {
-          name: "Banana",
-          id: 14,
-        },
-        {
-          name: "Watermelon",
-          id: 15,
-        },
-        {
-          name: "Kiwi fruit",
-          id: 16,
-        },
-      ],
-    },
-  ];
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const items2 = [
     {
@@ -114,6 +83,18 @@ const AddEvent = () => {
     []
   );
 
+  const handleChangeDate = useCallback(
+    ({ type }: any, selectedDate: Date | undefined) => {
+      if (type === "set") {
+        if (selectedDate) {
+          setDate(selectedDate.toDateString());
+        }
+      }
+      setShowDatePicker(false);
+    },
+    []
+  );
+
   const pickImage = useCallback(async () => {
     try {
       const res = await ImagePicker.launchImageLibraryAsync({
@@ -146,6 +127,13 @@ const AddEvent = () => {
   return (
     <SafeView>
       <LoadingModal isVisible={isPending} />
+      {showDatePicker && (
+        <DateTimePicker
+          mode="date"
+          value={new Date(date)}
+          onChange={handleChangeDate}
+        />
+      )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -282,14 +270,15 @@ const AddEvent = () => {
               </Text>
               <Text style={tw`text-rose-500`}>(Optional)</Text>
             </View>
-            <TextInput
-              style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter date"
-              placeholderTextColor={"#fff"}
-              value={date}
-              onChangeText={(text) => handleChange("date", text)}
-              keyboardType="number-pad"
-            />
+            <Pressable onPress={() => setShowDatePicker(true)}>
+              <TextInput
+                style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
+                placeholder="Enter date"
+                placeholderTextColor={"#fff"}
+                value={date}
+                editable={false}
+              />
+            </Pressable>
           </View>
           <View style={tw`gap-y-3 w-[80%]`}>
             <View style={tw`flex-row items-center gap-x-2`}>
@@ -304,7 +293,6 @@ const AddEvent = () => {
               placeholderTextColor={"#fff"}
               value={time}
               onChangeText={(text) => handleChange("time", text)}
-              keyboardType="number-pad"
             />
           </View>
           <View style={tw`gap-y-3 w-[80%]`}>
@@ -319,7 +307,7 @@ const AddEvent = () => {
               showDropDowns={true}
               onSelectedItemsChange={handleSelectHeads}
               selectedItems={heads}
-              colors={{selectToggleTextColor:"#fff" }}
+              colors={{ selectToggleTextColor: "#fff" }}
               hideSearch
               showCancelButton
             />
