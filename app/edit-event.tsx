@@ -20,7 +20,7 @@ const EditEvent = () => {
       <LoadingModal isVisible={isPending} />
       <Header showBackButton />
 
-      <Title>Add Event</Title>
+      <Title>Edit Event</Title>
     </SafeView>
   );
 };

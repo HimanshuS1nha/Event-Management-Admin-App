@@ -156,7 +156,7 @@ const AddHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your name"
+              placeholder="Enter head's name"
               placeholderTextColor={"#fff"}
               value={name}
               onChangeText={(text) => handleChange("name", text)}
@@ -168,7 +168,7 @@ const AddHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your email"
+              placeholder="Enter head's email"
               placeholderTextColor={"#fff"}
               value={email}
               onChangeText={(text) => handleChange("email", text)}
@@ -180,7 +180,7 @@ const AddHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your phone number"
+              placeholder="Enter head's phone number"
               placeholderTextColor={"#fff"}
               value={phoneNumber}
               onChangeText={(text) => handleChange("phoneNumber", text)}
@@ -193,7 +193,7 @@ const AddHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your password"
+              placeholder="Enter head's password"
               placeholderTextColor={"#fff"}
               value={password}
               secureTextEntry
@@ -206,7 +206,7 @@ const AddHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your password"
+              placeholder="Confirm password"
               placeholderTextColor={"#fff"}
               value={confirmPassword}
               secureTextEntry

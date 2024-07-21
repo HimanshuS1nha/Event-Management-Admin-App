@@ -88,7 +88,7 @@ const AddScanner = () => {
           <Text style={tw`text-white ml-1.5 font-medium text-base`}>Email</Text>
           <TextInput
             style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-            placeholder="Enter your email"
+            placeholder="Enter scanner's email"
             placeholderTextColor={"#fff"}
             value={email}
             onChangeText={(text) => handleChange("email", text)}
@@ -100,7 +100,7 @@ const AddScanner = () => {
           </Text>
           <TextInput
             style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-            placeholder="Enter your password"
+            placeholder="Enter scanner's password"
             placeholderTextColor={"#fff"}
             value={password}
             onChangeText={(text) => handleChange("password", text)}
@@ -113,7 +113,7 @@ const AddScanner = () => {
           </Text>
           <TextInput
             style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-            placeholder="Confirm your password"
+            placeholder="Confirm password"
             placeholderTextColor={"#fff"}
             value={confirmPassword}
             onChangeText={(text) => handleChange("confirmPassword", text)}

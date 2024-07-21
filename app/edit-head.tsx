@@ -174,7 +174,7 @@ const EditHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your name"
+              placeholder="Enter head's name"
               placeholderTextColor={"#fff"}
               value={name}
               onChangeText={(text) => handleChange("name", text)}
@@ -186,7 +186,7 @@ const EditHead = () => {
             </Text>
             <TextInput
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
-              placeholder="Enter your phone number"
+              placeholder="Enter head's phone number"
               placeholderTextColor={"#fff"}
               value={phoneNumber}
               onChangeText={(text) => handleChange("phoneNumber", text)}
