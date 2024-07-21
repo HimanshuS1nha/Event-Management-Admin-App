@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
@@ -24,6 +24,7 @@ import Header from "@/components/Header";
 import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
 import { eventCategories } from "@/constants/event-categories";
+import { addEventValidator } from "@/validators/add-event-validator";
 
 const AddEvent = () => {
   const [name, setName] = useState("");
@@ -32,10 +33,10 @@ const AddEvent = () => {
   const [rules, setRules] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [rommNo, setRommNo] = useState("");
+  const [roomNo, setRoomNo] = useState("");
   const [date, setDate] = useState(new Date().toDateString());
   const [time, setTime] = useState("");
-  const [heads, setHeads] = useState([]);
+  const [heads, setHeads] = useState<string[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const items2 = [
@@ -73,7 +74,7 @@ const AddEvent = () => {
       } else if (type === "location") {
         setLocation(value);
       } else if (type === "roomNo") {
-        setRommNo(value);
+        setRoomNo(value);
       } else if (type === "date") {
         setDate(value);
       } else if (type === "time") {
@@ -112,21 +113,78 @@ const AddEvent = () => {
     }
   }, []);
 
-  const handleSelectHeads = useCallback((items: any) => {
+  const handleSelectHeads = useCallback((items: string[]) => {
     setHeads(items);
-    console.log(items);
   }, []);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["get-unassigned-heads"],
+    queryFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/get-unassigned-heads`,
+        { token }
+      );
+
+      return data as { unassignedHeads: { id: string; name: string }[] };
+    },
+  });
+  if (error) {
+    if (error instanceof AxiosError && error.response?.data.error) {
+      Alert.alert("Error", error.response.data.error);
+    } else if (error instanceof Error) {
+      Alert.alert("Error", error.message);
+    } else {
+      Alert.alert("Error", "Some error occured. Please try again later!");
+    }
+  }
 
   const { mutate: handleAddEvent, isPending } = useMutation({
     mutationKey: ["add-event"],
     mutationFn: async () => {
-      console.log(category);
-      console.log(rules.split("\n"));
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await addEventValidator.parseAsync({
+        name,
+        image,
+        category,
+        rules: rules.split("\n"),
+        description,
+        location,
+        roomNo: parseInt(roomNo),
+        date,
+        time,
+        heads,
+      });
+
+      return true;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (error) => {
+      console.log(error);
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
     },
   });
   return (
     <SafeView>
-      <LoadingModal isVisible={isPending} />
+      <LoadingModal isVisible={isLoading || isPending} />
       {showDatePicker && (
         <DateTimePicker
           mode="date"
@@ -250,7 +308,7 @@ const AddEvent = () => {
           <View style={tw`gap-y-3 w-[80%]`}>
             <View style={tw`flex-row items-center gap-x-2`}>
               <Text style={tw`text-white ml-1.5 font-medium text-base`}>
-                Rules
+                Room Number
               </Text>
               <Text style={tw`text-rose-500`}>(Optional)</Text>
             </View>
@@ -258,7 +316,7 @@ const AddEvent = () => {
               style={tw`w-full border border-white px-4 py-3 rounded-lg text-white`}
               placeholder="Enter event's room number"
               placeholderTextColor={"#fff"}
-              value={rommNo}
+              value={roomNo}
               onChangeText={(text) => handleChange("roomNo", text)}
               keyboardType="number-pad"
             />
@@ -300,7 +358,7 @@ const AddEvent = () => {
               Heads
             </Text>
             <SectionedMultiSelect
-              items={items2}
+              items={data?.unassignedHeads}
               IconRenderer={MaterialIcons as any}
               uniqueKey="id"
               selectText="Select heads"
