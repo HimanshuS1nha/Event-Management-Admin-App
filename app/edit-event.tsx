@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
@@ -19,6 +19,7 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import SectionedMultiSelect from "react-native-sectioned-multi-select";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -111,12 +112,38 @@ const EditEvent = () => {
     setHeads(items);
   }, []);
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["get-heads-details"],
+    queryFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/get-heads-details`,
+        { token, heads }
+      );
+
+      return data as { allHeads: { id: string; name: string }[] };
+    },
+  });
+  if (error) {
+    if (error instanceof AxiosError && error.response?.data.error) {
+      Alert.alert("Error", error.response.data.error);
+    } else if (error instanceof Error) {
+      Alert.alert("Error", error.message);
+    } else {
+      Alert.alert("Error", "Some error occured. Please try again later!");
+    }
+  }
+
   const { mutate: handleEditEvent, isPending } = useMutation({
     mutationKey: ["edit-event"],
   });
   return (
     <SafeView>
-      <LoadingModal isVisible={isPending} />
+      <LoadingModal isVisible={isLoading || isPending} />
       {showDatePicker && (
         <DateTimePicker
           mode="date"
@@ -290,6 +317,32 @@ const EditEvent = () => {
               onChangeText={(text) => handleChange("time", text)}
             />
           </View>
+
+          <View style={tw`gap-y-3 w-[80%]`}>
+            <Text style={tw`text-white ml-1.5 font-medium text-base`}>
+              Heads
+            </Text>
+            <SectionedMultiSelect
+              items={data?.allHeads}
+              IconRenderer={MaterialIcons as any}
+              uniqueKey="id"
+              selectText="Select heads"
+              showDropDowns={true}
+              onSelectedItemsChange={handleSelectHeads}
+              selectedItems={heads}
+              colors={{ selectToggleTextColor: "#fff" }}
+              hideSearch
+              showCancelButton
+            />
+          </View>
+
+          <Pressable
+            style={tw`bg-violet-600 w-[80%] items-center py-3 justify-center rounded-lg`}
+            onPress={() => handleEditEvent()}
+            disabled={isPending}
+          >
+            <Text style={tw`text-white text-base font-semibold`}>Add</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeView>
