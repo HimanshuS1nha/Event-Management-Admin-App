@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ZodError } from "zod";
 import * as SecureStore from "expo-secure-store";
@@ -20,6 +20,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import { router } from "expo-router";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -27,9 +28,11 @@ import Title from "@/components/Title";
 import LoadingModal from "@/components/LoadingModal";
 import { useSelectedEvent } from "@/hooks/useSelectedEvent";
 import { eventCategories } from "@/constants/event-categories";
+import { editEventValidator } from "@/validators/edit-event-validator";
 
 const EditEvent = () => {
   const { selectedEvent } = useSelectedEvent();
+  const queryClient = useQueryClient();
 
   const [name, setName] = useState(selectedEvent.name);
   const [image, setImage] = useState(selectedEvent.image);
@@ -140,6 +143,74 @@ const EditEvent = () => {
 
   const { mutate: handleEditEvent, isPending } = useMutation({
     mutationKey: ["edit-event"],
+    mutationFn: async () => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const parsedData = await editEventValidator.parseAsync({
+        id: selectedEvent.id,
+        name,
+        image,
+        category,
+        rules: rules?.split("\n"),
+        description,
+        location,
+        roomNo: parseInt(roomNo),
+        date,
+        time,
+        heads,
+      });
+
+      if (
+        parsedData.name === selectedEvent.name &&
+        parsedData.category === selectedEvent.category &&
+        JSON.stringify(parsedData.rules) ===
+          JSON.stringify(selectedEvent.rules) &&
+        parsedData.roomNo === selectedEvent.roomNo &&
+        parsedData.location === selectedEvent.location &&
+        parsedData.image === selectedEvent.image &&
+        parsedData.time === selectedEvent.time &&
+        parsedData.date === selectedEvent.date &&
+        parsedData.description === selectedEvent.description &&
+        JSON.stringify(parsedData.heads) ===
+          JSON.stringify(
+            selectedEvent.HeadsAndEvents.map(
+              (headAndEvent) => headAndEvent.headId
+            )
+          )
+      ) {
+        return { message: "Event edited successfully" };
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/edit-event`,
+        { token, ...parsedData, id: selectedEvent.id }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ["get-events"] });
+      Alert.alert("Success", data.message, [
+        {
+          text: "Ok",
+          onPress: router.back,
+        },
+      ]);
+    },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
@@ -341,7 +412,7 @@ const EditEvent = () => {
             onPress={() => handleEditEvent()}
             disabled={isPending}
           >
-            <Text style={tw`text-white text-base font-semibold`}>Add</Text>
+            <Text style={tw`text-white text-base font-semibold`}>Edit</Text>
           </Pressable>
         </View>
       </ScrollView>
