@@ -17,7 +17,9 @@ import * as ImagePicker from "expo-image-picker";
 import { Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 import SafeView from "@/components/SafeView";
 import Header from "@/components/Header";
@@ -38,17 +40,6 @@ const AddEvent = () => {
   const [time, setTime] = useState("");
   const [heads, setHeads] = useState<string[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const items2 = [
-    {
-      id: 1,
-      name: "Yo",
-    },
-    {
-      id: 2,
-      name: "Go",
-    },
-  ];
 
   const handleChange = useCallback(
     (
@@ -85,7 +76,7 @@ const AddEvent = () => {
   );
 
   const handleChangeDate = useCallback(
-    ({ type }: any, selectedDate: Date | undefined) => {
+    ({ type }: DateTimePickerEvent, selectedDate: Date | undefined) => {
       if (type === "set") {
         if (selectedDate) {
           setDate(selectedDate.toDateString());
