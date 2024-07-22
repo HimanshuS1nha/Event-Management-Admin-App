@@ -13,9 +13,12 @@ import { router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
+import { FlashList } from "@shopify/flash-list";
 
 import SafeView from "@/components/SafeView";
 import { useSelectedEvent } from "@/hooks/useSelectedEvent";
+import LoadingModal from "@/components/LoadingModal";
+import HeadDetailsCard from "@/components/HeadDetailsCard";
 
 const Event = () => {
   const { selectedEvent } = useSelectedEvent();
@@ -52,6 +55,7 @@ const Event = () => {
   });
   return (
     <SafeView>
+      <LoadingModal isVisible={isPending} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`pb-20`}
@@ -133,6 +137,22 @@ const Event = () => {
             </View>
           </View>
         )}
+
+        <View style={tw`mt-7 px-4 gap-y-4`}>
+          <Text style={tw`text-white text-lg font-medium`}>Event Heads</Text>
+          <View style={tw`w-full h-full`}>
+            <FlashList
+              data={selectedEvent?.HeadsAndEvents}
+              keyExtractor={(_, i) => i.toString()}
+              renderItem={({ item }) => {
+                return <HeadDetailsCard id={item.headId} />;
+              }}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              estimatedItemSize={10}
+            />
+          </View>
+        </View>
       </ScrollView>
 
       <View

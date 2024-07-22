@@ -193,12 +193,20 @@ const EditEvent = () => {
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({
-        queryKey: ["get-events", "get-all-heads"],
+        queryKey: ["get-all-heads"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["get-events"],
       });
       Alert.alert("Success", data.message, [
         {
           text: "Ok",
-          onPress: router.back,
+          onPress: () => {
+            router.replace({
+              pathname: "/events",
+              params: { category: selectedEvent.category },
+            });
+          },
         },
       ]);
     },

@@ -16,7 +16,7 @@ import EventCard from "@/components/EventCard";
 
 const Events = () => {
   const { category } = useLocalSearchParams();
-  const { selectedEvent, setSelectedEvent } = useSelectedEvent();
+  const { setSelectedEvent } = useSelectedEvent();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["get-events"],
