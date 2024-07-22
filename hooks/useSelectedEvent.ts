@@ -4,6 +4,7 @@ type SelectedEventType = {
   id: string;
   name: string;
   image: string;
+  category: string;
   description: string;
   date?: string;
   time: string;

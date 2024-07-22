@@ -60,7 +60,7 @@ const Events = () => {
               return (
                 <Pressable
                   onPress={() => {
-                    setSelectedEvent({ ...item });
+                    setSelectedEvent({ ...item, category: category as string });
                     router.navigate("/event");
                   }}
                 >
