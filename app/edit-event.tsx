@@ -192,7 +192,9 @@ const EditEvent = () => {
       return data as { message: string };
     },
     onSuccess: async (data) => {
-      await queryClient.invalidateQueries({ queryKey: ["get-events"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["get-events", "get-all-heads"],
+      });
       Alert.alert("Success", data.message, [
         {
           text: "Ok",
