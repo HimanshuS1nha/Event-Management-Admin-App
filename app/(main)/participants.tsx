@@ -15,27 +15,26 @@ import { useLocalSearchParams } from "expo-router";
 import Pagination from "@/components/Pagination";
 
 const Participants = () => {
-  const participants = [
-    {
-      id: "1",
-      name: "Random Guy",
-      branch: "CSE",
-      year: "3rd",
-      image:
-        "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=600",
-    },
-  ];
-
   const searchParams = useLocalSearchParams();
   const pageNumber = (searchParams.pageNumber as string) ?? "1";
   const perPage = 10;
 
   const [totalNumberOfPages, setTotalNumberOfPages] = useState(1);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["get-users"],
     queryFn: async () => {
-      return { totalNumberOfUsers: 13 };
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/get-users`,
+        { token, pageNumber: parseInt(pageNumber) - 1, perPage }
+      );
+
+      return data as { totalNumberOfUsers: number; users: any[] };
     },
   });
   if (error) {
@@ -76,21 +75,28 @@ const Participants = () => {
 
   useEffect(() => {
     if (data?.totalNumberOfUsers) {
-      setTotalNumberOfPages(Math.ceil(data.totalNumberOfUsers / 10));
+      setTotalNumberOfPages(Math.ceil(data.totalNumberOfUsers / perPage));
     }
   }, [data]);
+
+  useEffect(() => {
+    refetch();
+  }, [pageNumber]);
   return (
     <SafeView>
       <LoadingModal isVisible={isLoading || isPending} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`pb-10`}
+      >
         <Header />
 
         <Title>Participants</Title>
 
-        <View style={tw`mt-8 px-4`}>
+        <View style={tw`mt-8 px-4 w-full h-full`}>
           <FlashList
-            data={participants}
-            keyExtractor={(item) => item.id}
+            data={data?.users}
+            keyExtractor={(item, i) => i.toString()}
             renderItem={({ item }) => {
               return (
                 <ParticipantCard participant={item} onDelete={handleDelete} />
@@ -100,12 +106,15 @@ const Participants = () => {
             numColumns={2}
           />
         </View>
-
+      </ScrollView>
+      <View
+        style={tw`absolute bottom-0 w-full pb-4 items-center bg-black h-16`}
+      >
         <Pagination
           totalNumberOfPages={totalNumberOfPages}
           pageNumber={pageNumber}
         />
-      </ScrollView>
+      </View>
     </SafeView>
   );
 };
