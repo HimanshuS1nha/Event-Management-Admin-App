@@ -1,14 +1,16 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, Alert } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
+import { useMutation } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
+import * as SecureStore from "expo-secure-store";
 
 import SafeView from "@/components/SafeView";
 import Title from "@/components/Title";
 import Header from "@/components/Header";
 import LoadingModal from "@/components/LoadingModal";
 import ParticipantCard from "@/components/ParticipantCard";
-import { useMutation } from "@tanstack/react-query";
 
 const Participants = () => {
   const participants = [
@@ -24,10 +26,32 @@ const Participants = () => {
 
   const { mutate: handleDelete, isPending } = useMutation({
     mutationKey: ["delete-user"],
-    mutationFn: async (id: string) => {},
+    mutationFn: async (id: string) => {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        throw new Error("Authenication failed. Please login again!");
+      }
+
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/delete/user`,
+        { token, id }
+      );
+
+      return data as { message: string };
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response?.data.error);
+      } else if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
+      <LoadingModal isVisible={isPending} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header />
 
