@@ -13,6 +13,8 @@ import LoadingModal from "@/components/LoadingModal";
 import ParticipantCard from "@/components/ParticipantCard";
 import { useLocalSearchParams } from "expo-router";
 import Pagination from "@/components/Pagination";
+import { getUsersValidator } from "@/validators/get-users-validator";
+import { ZodError } from "zod";
 
 const Participants = () => {
   const searchParams = useLocalSearchParams();
@@ -29,16 +31,23 @@ const Participants = () => {
         throw new Error("Authenication failed. Please login again!");
       }
 
+      const parsedData = await getUsersValidator.parseAsync({
+        pageNumber: parseInt(pageNumber) - 1,
+        perPage,
+      });
+
       const { data } = await axios.post(
         `${process.env.EXPO_PUBLIC_API_URL}/get-users`,
-        { token, pageNumber: parseInt(pageNumber) - 1, perPage }
+        { token, ...parsedData }
       );
 
       return data as { totalNumberOfUsers: number; users: any[] };
     },
   });
   if (error) {
-    if (error instanceof AxiosError && error.response?.data.error) {
+    if (error instanceof ZodError) {
+      Alert.alert("Error", error.errors[0].message);
+    } else if (error instanceof AxiosError && error.response?.data.error) {
       Alert.alert("Error", error.response?.data.error);
     } else if (error instanceof Error) {
       Alert.alert("Error", error.message);
