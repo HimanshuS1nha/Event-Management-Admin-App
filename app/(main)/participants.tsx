@@ -39,6 +39,8 @@ const Participants = () => {
       const parsedData = await getUsersValidator.parseAsync({
         pageNumber: parseInt(pageNumber) - 1,
         perPage,
+        branch,
+        year,
       });
 
       const { data } = await axios.post(
@@ -109,6 +111,7 @@ const Participants = () => {
         setYear={setYear}
         branch={branch}
         setBranch={setBranch}
+        getUsers={refetch}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -119,9 +122,14 @@ const Participants = () => {
         <Title>Participants</Title>
 
         <View style={tw`mt-8 px-4 w-full h-full`}>
+          {data?.users?.length === 0 && (
+            <Text style={tw`text-base font-medium text-center text-rose-600`}>
+              No data to show.
+            </Text>
+          )}
           <FlashList
             data={data?.users}
-            keyExtractor={(item, i) => i.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => {
               return (
                 <ParticipantCard participant={item} onDelete={handleDelete} />

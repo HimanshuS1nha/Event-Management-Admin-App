@@ -14,6 +14,7 @@ const FilterModal = ({
   setYear,
   branch,
   setBranch,
+  getUsers,
 }: {
   isVisible: boolean;
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,6 +22,7 @@ const FilterModal = ({
   setYear: React.Dispatch<React.SetStateAction<string>>;
   branch: string;
   setBranch: React.Dispatch<React.SetStateAction<string>>;
+  getUsers: () => void;
 }) => {
   const handleChange = useCallback((type: "year" | "branch", value: string) => {
     if (type === "year") {
@@ -69,6 +71,10 @@ const FilterModal = ({
         <View style={tw`gap-y-3`}>
           <Pressable
             style={tw`bg-violet-600 items-center justify-center py-3 rounded-full`}
+            onPress={() => {
+              getUsers();
+              setIsVisible(false);
+            }}
           >
             <Text style={tw`text-white text-base font-medium`}>Apply</Text>
           </Pressable>
