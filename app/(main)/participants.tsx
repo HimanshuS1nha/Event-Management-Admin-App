@@ -26,6 +26,7 @@ const Participants = () => {
   const [totalNumberOfPages, setTotalNumberOfPages] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [year, setYear] = useState("");
+  const [branch, setBranch] = useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["get-users"],
@@ -106,6 +107,8 @@ const Participants = () => {
         setIsVisible={setIsModalVisible}
         year={year}
         setYear={setYear}
+        branch={branch}
+        setBranch={setBranch}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

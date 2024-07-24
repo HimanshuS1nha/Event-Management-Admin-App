@@ -1,22 +1,34 @@
 import { View, Text, Modal, Pressable } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import tw from "twrnc";
 import { Picker } from "@react-native-picker/picker";
 
 import Title from "./Title";
 import { years } from "@/constants/years";
+import { branches } from "@/constants/branches";
 
 const FilterModal = ({
   isVisible,
   setIsVisible,
   year,
   setYear,
+  branch,
+  setBranch,
 }: {
   isVisible: boolean;
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
   year: string;
   setYear: React.Dispatch<React.SetStateAction<string>>;
+  branch: string;
+  setBranch: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+  const handleChange = useCallback((type: "year" | "branch", value: string) => {
+    if (type === "year") {
+      setYear(value);
+    } else if (type === "branch") {
+      setBranch(value);
+    }
+  }, []);
   return (
     <Modal visible={isVisible} animationType="fade" transparent>
       <View style={tw`bg-black h-[50%] pt-5 px-5 gap-y-7`}>
@@ -26,6 +38,7 @@ const FilterModal = ({
             dropdownIconColor={"#fff"}
             style={tw`text-white`}
             selectedValue={year}
+            onValueChange={(value) => handleChange("year", value)}
           >
             <Picker.Item label="Select a year" value={""} />
             {years.map((year) => {
@@ -37,11 +50,18 @@ const FilterModal = ({
           <Picker
             dropdownIconColor={"#fff"}
             style={tw`text-white`}
-            selectedValue={year}
+            selectedValue={branch}
+            onValueChange={(value) => handleChange("branch", value)}
           >
-            <Picker.Item label="Select a year" value={""} />
-            {years.map((year) => {
-              return <Picker.Item key={year} label={year} value={year} />;
+            <Picker.Item label="Select branch" value={""} />
+            {branches.map((branch) => {
+              return (
+                <Picker.Item
+                  key={branch.value}
+                  label={branch.label}
+                  value={branch.value}
+                />
+              );
             })}
           </Picker>
         </View>
@@ -60,7 +80,7 @@ const FilterModal = ({
           </Pressable>
         </View>
       </View>
-      <View style={tw`bg-gray-100/40 h-[50%]`}></View>
+      <View style={tw`bg-gray-100/25 h-[50%]`}></View>
     </Modal>
   );
 };
