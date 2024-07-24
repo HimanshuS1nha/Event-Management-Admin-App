@@ -3,17 +3,13 @@ import React, { memo } from "react";
 import tw from "twrnc";
 import { FontAwesome } from "@expo/vector-icons";
 
+import { UserType } from "@/types";
+
 const ParticipantCard = ({
   participant,
   onDelete,
 }: {
-  participant: {
-    id: string;
-    image: string;
-    name: string;
-    branch: string;
-    year: string;
-  };
+  participant: UserType;
   onDelete: (id: string) => void;
 }) => {
   return (

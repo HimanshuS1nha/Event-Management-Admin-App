@@ -5,6 +5,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
+import { ZodError } from "zod";
 
 import SafeView from "@/components/SafeView";
 import Title from "@/components/Title";
@@ -14,7 +15,7 @@ import ParticipantCard from "@/components/ParticipantCard";
 import { useLocalSearchParams } from "expo-router";
 import Pagination from "@/components/Pagination";
 import { getUsersValidator } from "@/validators/get-users-validator";
-import { ZodError } from "zod";
+import { UserType } from "@/types";
 
 const Participants = () => {
   const searchParams = useLocalSearchParams();
@@ -41,7 +42,10 @@ const Participants = () => {
         { token, ...parsedData }
       );
 
-      return data as { totalNumberOfUsers: number; users: any[] };
+      return data as {
+        totalNumberOfUsers: number;
+        users: UserType[];
+      };
     },
   });
   if (error) {

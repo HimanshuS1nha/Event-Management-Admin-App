@@ -21,3 +21,11 @@ export type HeadType = {
   phoneNumber: string;
   image: string;
 };
+
+export type UserType = {
+  name: string;
+  id: string;
+  branch: string;
+  year: string;
+  image: string;
+};
