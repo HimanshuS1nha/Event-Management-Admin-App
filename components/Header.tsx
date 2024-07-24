@@ -1,7 +1,11 @@
 import { View, Image, Pressable, Alert } from "react-native";
 import React, { memo, useCallback } from "react";
 import tw from "twrnc";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  MaterialCommunityIcons,
+  Ionicons,
+} from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
@@ -10,9 +14,11 @@ import { useUser } from "@/hooks/useUser";
 const Header = ({
   showBackButton = false,
   url,
+  setIsVisible,
 }: {
   showBackButton?: boolean;
   url?: string;
+  setIsVisible?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { setIsLoggedIn } = useUser();
 
@@ -39,6 +45,11 @@ const Header = ({
         {url && (
           <Pressable onPress={() => router.push(url)}>
             <AntDesign name="plus" size={27} color="white" />
+          </Pressable>
+        )}
+        {setIsVisible && (
+          <Pressable onPress={() => setIsVisible(true)}>
+            <Ionicons name="options-sharp" size={27} color="white" />
           </Pressable>
         )}
         {!showBackButton && (

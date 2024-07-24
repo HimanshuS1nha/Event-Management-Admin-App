@@ -16,6 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 import Pagination from "@/components/Pagination";
 import { getUsersValidator } from "@/validators/get-users-validator";
 import { UserType } from "@/types";
+import FilterModal from "@/components/FilterModal";
 
 const Participants = () => {
   const searchParams = useLocalSearchParams();
@@ -23,6 +24,8 @@ const Participants = () => {
   const perPage = 10;
 
   const [totalNumberOfPages, setTotalNumberOfPages] = useState(1);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [year, setYear] = useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["get-users"],
@@ -98,11 +101,17 @@ const Participants = () => {
   return (
     <SafeView>
       <LoadingModal isVisible={isLoading || isPending} />
+      <FilterModal
+        isVisible={isModalVisible}
+        setIsVisible={setIsModalVisible}
+        year={year}
+        setYear={setYear}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`pb-10`}
       >
-        <Header />
+        <Header setIsVisible={setIsModalVisible} />
 
         <Title>Participants</Title>
 
