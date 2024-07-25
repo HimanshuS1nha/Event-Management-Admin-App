@@ -1,11 +1,12 @@
-import { Text, ImageBackground, Pressable } from "react-native";
+import { Text, ImageBackground, Pressable, Alert } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
 import { useLocalSearchParams, router } from "expo-router";
 import OTPTextInput from "react-native-otp-textinput";
 import * as SecureStore from "expo-secure-store";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { ZodError } from "zod";
 
 import SafeView from "@/components/SafeView";
 import LoadingModal from "@/components/LoadingModal";
@@ -41,10 +42,41 @@ const Verify = () => {
       setIsLoggedIn(true);
       router.replace("/participants");
     },
+    onError: (error) => {
+      if (error instanceof ZodError) {
+        Alert.alert("Error", error.errors[0].message);
+      } else if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
+  });
+
+  const { mutate: handleResendOtp, isPending: otpResendPending } = useMutation({
+    mutationKey: ["resend-otp"],
+    mutationFn: async () => {
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/resend-otp/admin`,
+        { email }
+      );
+
+      return data as { message: string };
+    },
+    onSuccess: (data) => {
+      Alert.alert("Success", data.message);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Some error occured. Please try again later!");
+      }
+    },
   });
   return (
     <SafeView>
-      <LoadingModal isVisible={isPending} />
+      <LoadingModal isVisible={isPending || otpResendPending} />
 
       <ImageBackground
         source={require("../..//assets/images/login-bg.webp")}
@@ -63,9 +95,18 @@ const Verify = () => {
         <Pressable
           style={tw`bg-violet-600 w-[80%] items-center py-3 justify-center rounded-lg`}
           onPress={() => handleVerify()}
-          disabled={isPending}
+          disabled={isPending || otpResendPending}
         >
           <Text style={tw`text-white text-base font-semibold`}>Verify</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => handleResendOtp()}
+          disabled={isPending || otpResendPending}
+        >
+          <Text style={tw`text-blue-400 text-center text-base font-bold`}>
+            Resend OTP
+          </Text>
         </Pressable>
       </ImageBackground>
     </SafeView>
