@@ -20,7 +20,7 @@ const ScannerCard = ({
       <Pressable
         style={tw`bg-rose-600 p-2 rounded-full items-center justify-center`}
         onPress={() => {
-          Alert.alert("Warning", "Do you want to delete this event?", [
+          Alert.alert("Warning", "Do you want to delete this scanner?", [
             {
               text: "No",
             },
