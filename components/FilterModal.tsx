@@ -35,19 +35,7 @@ const FilterModal = ({
     <Modal visible={isVisible} animationType="fade" transparent>
       <View style={tw`bg-black h-[50%] pt-5 px-5 gap-y-7`}>
         <Title>Filters</Title>
-        <View style={tw`border border-white rounded-full`}>
-          <Picker
-            dropdownIconColor={"#fff"}
-            style={tw`text-white`}
-            selectedValue={year}
-            onValueChange={(value) => handleChange("year", value)}
-          >
-            <Picker.Item label="Select a year" value={""} />
-            {years.map((year) => {
-              return <Picker.Item key={year} label={year} value={year} />;
-            })}
-          </Picker>
-        </View>
+
         <View style={tw`border border-white rounded-full`}>
           <Picker
             dropdownIconColor={"#fff"}
@@ -64,6 +52,20 @@ const FilterModal = ({
                   value={branch.value}
                 />
               );
+            })}
+          </Picker>
+        </View>
+
+        <View style={tw`border border-white rounded-full`}>
+          <Picker
+            dropdownIconColor={"#fff"}
+            style={tw`text-white`}
+            selectedValue={year}
+            onValueChange={(value) => handleChange("year", value)}
+          >
+            <Picker.Item label="Select a year" value={""} />
+            {years.map((year) => {
+              return <Picker.Item key={year} label={year} value={year} />;
             })}
           </Picker>
         </View>

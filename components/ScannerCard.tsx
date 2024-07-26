@@ -12,7 +12,7 @@ const ScannerCard = ({
 }) => {
   return (
     <View
-      style={tw`px-4 py-6 bg-gray-700 rounded-lg flex-row justify-between items-center`}
+      style={tw`px-4 py-6 bg-gray-700 rounded-lg flex-row justify-between items-center mb-4`}
     >
       <Text style={tw`text-white font-medium text-base w-[70%]`}>
         {scanner.email}

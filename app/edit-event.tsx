@@ -202,10 +202,8 @@ const EditEvent = () => {
         {
           text: "Ok",
           onPress: () => {
-            router.replace({
-              pathname: "/events",
-              params: { category: selectedEvent.category },
-            });
+            router.back();
+            router.back();
           },
         },
       ]);
