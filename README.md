@@ -36,7 +36,7 @@ This is a part of the full stack event management app. Control everything from p
 
 ## Demo
 
-Live Demo - Coming Soon
+Live Demo - [Click Here](https://www.youtube.com/shorts/m9h0Cx5bskE)
 
 ## OTHER LINKS
 
